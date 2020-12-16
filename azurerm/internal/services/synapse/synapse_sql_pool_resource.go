@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/services/preview/synapse/mgmt/2019-06-01-preview/synapse"
-	"github.com/Azure/go-autorest/autorest/date"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -224,7 +223,8 @@ func resourceSynapseSqlPoolCreate(d *schema.ResourceData, meta interface{}) erro
 		if err != nil {
 			return err
 		}
-		sqlPoolInfo.SQLPoolResourceProperties.RestorePointInTime = &date.Time{Time: restorePointInTime}
+		var parsedRestorePointInTime string = restorePointInTime.String()
+		sqlPoolInfo.SQLPoolResourceProperties.RestorePointInTime = &parsedRestorePointInTime
 		sqlPoolInfo.SQLPoolResourceProperties.SourceDatabaseID = utils.String(sourceDatabaseId)
 	}
 

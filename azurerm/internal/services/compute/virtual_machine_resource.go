@@ -934,7 +934,8 @@ func resourceArmVirtualMachineDelete(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("Error retrieving Virtual Machine %q (Resource Group %q): %s", name, resGroup, err)
 	}
 
-	future, err := client.Delete(ctx, resGroup, name)
+	forceDeletion := d.Get("force_deletion").(bool)
+	future, err := client.Delete(ctx, resGroup, name, &forceDeletion)
 	if err != nil {
 		return fmt.Errorf("Error deleting Virtual Machine %q (Resource Group %q): %s", name, resGroup, err)
 	}

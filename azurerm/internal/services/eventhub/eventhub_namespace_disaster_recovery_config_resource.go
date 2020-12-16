@@ -285,7 +285,7 @@ func resourceArmEventHubNamespaceDisasterRecoveryConfigDelete(d *schema.Resource
 
 func resourceArmEventHubNamespaceDisasterRecoveryConfigWaitForState(ctx context.Context, client *eventhub.DisasterRecoveryConfigsClient, resourceGroup, namespaceName, name string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{string(eventhub.Accepted)},
+		Pending:    []string{string(eventhub.Pending)},
 		Target:     []string{string(eventhub.Succeeded)},
 		MinTimeout: 30 * time.Second,
 		Timeout:    timeout,
@@ -296,7 +296,7 @@ func resourceArmEventHubNamespaceDisasterRecoveryConfigWaitForState(ctx context.
 			}
 
 			if props := read.ArmDisasterRecoveryProperties; props != nil {
-				if props.ProvisioningState == eventhub.Failed {
+				if props.ProvisioningState == eventhub.ProvisioningStateDRFailed {
 					return read, "failed", fmt.Errorf("Replication for EventHub Namespace Disaster Recovery Configs %q (Namespace %q / Resource Group %q) failed!", name, namespaceName, resourceGroup)
 				}
 				return read, string(props.ProvisioningState), nil

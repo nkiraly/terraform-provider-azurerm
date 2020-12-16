@@ -16,7 +16,7 @@ func ResourceSecurityCenterSubscriptionPricingV0() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					string(security.Free),
+					string(security.PricingTierFree),
 					string(security.Standard),
 				}, false),
 			},

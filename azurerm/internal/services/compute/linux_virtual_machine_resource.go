@@ -175,6 +175,12 @@ func resourceLinuxVirtualMachine() *schema.Resource {
 				ValidateFunc: azValidate.ISO8601DurationBetween("PT15M", "PT2H"),
 			},
 
+			"force_deletion": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
 			"identity": virtualMachineIdentitySchema(),
 
 			"max_bid_price": {
@@ -1100,7 +1106,8 @@ func resourceLinuxVirtualMachineDelete(d *schema.ResourceData, meta interface{})
 	log.Printf("[DEBUG] Powered Off Linux Virtual Machine %q (Resource Group %q).", id.Name, id.ResourceGroup)
 
 	log.Printf("[DEBUG] Deleting Linux Virtual Machine %q (Resource Group %q)..", id.Name, id.ResourceGroup)
-	deleteFuture, err := client.Delete(ctx, id.ResourceGroup, id.Name)
+	forceDeletion := d.Get("force_deletion").(bool)
+	deleteFuture, err := client.Delete(ctx, id.ResourceGroup, id.Name, &forceDeletion)
 	if err != nil {
 		return fmt.Errorf("deleting Linux Virtual Machine %q (Resource Group %q): %+v", id.Name, id.ResourceGroup, err)
 	}
