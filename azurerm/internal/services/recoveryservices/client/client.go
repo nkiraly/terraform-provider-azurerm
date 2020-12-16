@@ -8,6 +8,7 @@ import (
 )
 
 type Client struct {
+	ProtectableItemsClient           *backup.ProtectableItemsClient
 	ProtectedItemsClient             *backup.ProtectedItemsClient
 	ProtectionPoliciesClient         *backup.ProtectionPoliciesClient
 	BackupProtectionContainersClient *backup.ProtectionContainersClient
@@ -28,6 +29,9 @@ func NewClient(o *common.ClientOptions) *Client {
 
 	vaultsClient := recoveryservices.NewVaultsClientWithBaseURI(o.ResourceManagerEndpoint, o.SubscriptionId)
 	o.ConfigureClient(&vaultsClient.Client, o.ResourceManagerAuthorizer)
+
+	protectableItemsClient := backup.NewProtectableItemsClientWithBaseURI(o.ResourceManagerEndpoint, o.SubscriptionId)
+	o.ConfigureClient(&protectableItemsClient.Client, o.ResourceManagerAuthorizer)
 
 	protectedItemsClient := backup.NewProtectedItemsClientWithBaseURI(o.ResourceManagerEndpoint, o.SubscriptionId)
 	o.ConfigureClient(&protectedItemsClient.Client, o.ResourceManagerAuthorizer)
@@ -78,6 +82,7 @@ func NewClient(o *common.ClientOptions) *Client {
 	}
 
 	return &Client{
+		ProtectableItemsClient:           &protectableItemsClient,
 		ProtectedItemsClient:             &protectedItemsClient,
 		ProtectionPoliciesClient:         &protectionPoliciesClient,
 		BackupProtectionContainersClient: &backupProtectionContainersClient,
