@@ -28,7 +28,7 @@ import (
 )
 
 // The package's fully qualified name.
-const fqdn = "github.com/Azure/azure-sdk-for-go/services/recoveryservices/mgmt/2019-05-13/backup"
+const fqdn = "github.com/Azure/azure-sdk-for-go/services/recoveryservices/mgmt/2020-02-02/backup"
 
 // AzureBackupGoalFeatureSupportRequest azure backup goal feature specific request.
 type AzureBackupGoalFeatureSupportRequest struct {
