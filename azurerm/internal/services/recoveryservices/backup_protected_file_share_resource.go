@@ -71,6 +71,7 @@ func resourceArmBackupProtectedFileShare() *schema.Resource {
 }
 
 func resourceArmBackupProtectedFileShareCreateUpdate(d *schema.ResourceData, meta interface{}) error {
+	ableClient := meta.(*clients.Client).RecoveryServices.ProtectableItemsClient
 	client := meta.(*clients.Client).RecoveryServices.ProtectedItemsClient
 	opClient := meta.(*clients.Client).RecoveryServices.BackupOperationStatusesClient
 	ctx, cancel := timeouts.ForCreateUpdate(meta.(*clients.Client).StopContext, d)
@@ -143,13 +144,22 @@ func resourceArmBackupProtectedFileShareCreateUpdate(d *schema.ResourceData, met
 		return err
 	}
 
-	resp, err = client.Get(ctx, vaultName, resourceGroup, "Azure", containerName, protectedItemName, "")
+	// #6762 azure file share backup protected item get by friendly name does not work in GA azure file share backups
+	// resp, err = client.Get(ctx, vaultName, resourceGroup, "Azure", containerName, protectedItemName, "")
+	// fix by using ProtectableItemsClient to get unique ID of protected item after create operation completes
+	page, err := ableClient.List(ctx, vaultName, resourceGroup, fmt.Sprintf("workloadType eq 'AzureFileShare' and friendlyName eq '%s'", protectedItemName), "")
 
 	if err != nil {
 		return fmt.Errorf("Error creating/udpating Azure File Share backup item %q (Vault %q): %+v", protectedItemName, vaultName, err)
 	}
 
-	id := strings.Replace(*resp.ID, "Subscriptions", "subscriptions", 1) // This code is a workaround for this bug https://github.com/Azure/azure-sdk-for-go/issues/2824
+	if page.Values() == nil {
+		return fmt.Errorf("Error listing Azure File Share backup item %q (Vault %q): %+v", protectedItemName, vaultName, err)
+	}
+
+	ableItem := page.Values()[0]
+
+	id := strings.Replace(*ableItem.ID, "Subscriptions", "subscriptions", 1) // This code is a workaround for this bug https://github.com/Azure/azure-sdk-for-go/issues/2824
 	d.SetId(id)
 
 	return resourceArmBackupProtectedFileShareRead(d, meta)
